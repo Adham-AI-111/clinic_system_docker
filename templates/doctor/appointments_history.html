@@ -1,0 +1,54 @@
+{% extends 'main.html' %}
+{% block title %}سجل المواعيد — نظام العيادة{% endblock %}
+{% block content %}
+
+
+<div class="layout">
+    {% include 'sidebar.html' %}
+
+    <main class="content">
+        <section class="section">
+            <!--? ----filter---- -->
+            <form method="get" class="card" style="display:flex; gap:12px; flex-wrap:wrap; align-items:end;">
+                <div>
+                    <label>من</label>
+                    <input type="date" name="first_date" value="{{request.GET.first_date}}" />
+                </div>
+                <div>
+                    <label>إلى</label>
+                    <input type="date" name="last_date" value="{{request.GET.last_date}}" />
+                </div>
+                <button type="submit" class="pill muted">تصفية</button>
+            </form>
+
+            <div class="card" style="padding:0;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>المريض</th>
+                            <th>ملف المريض</th>
+                            <th>العمر</th>
+                            <th>الحالة</th>
+                            <th>الرسوم</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <!-- ----------- loop here--------- -->
+                    <tbody>
+                    {% for appoint in appointments %}
+                        <tr>
+                            <td>{{appoint.patient_name}}</td>
+                            <td>{{appoint.patient_ID}}</td>
+                            <td>{{appoint.patient_age}}</td>
+                            <td><span class="pill success">{{appoint.status}}</span></td>
+                            <td>{{appoint.cost}} ج.م</td>
+                            <td>{{appoint.date}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

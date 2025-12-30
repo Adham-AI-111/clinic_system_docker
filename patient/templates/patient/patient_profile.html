@@ -1,0 +1,56 @@
+{% extends 'main.html' %}
+{% block title %}بيانات المريض{% endblock %}
+{% block content %}
+
+<!-- 
+    will get -> user id to filter his data
+    will pass to view -> appointment id to open each appointment page
+-->
+
+<div class="layout">
+    <!-- TODO: disaply for staff only -->
+    {% include 'sidebar.html' %}
+    <!-- ---------------------------- -->
+
+    <main class="content">
+        <section class="section">
+            <!-- patient public data in user model -->
+            <div class="card">
+                <h1 style="margin:0 0 8px;">{{ patient.user.username }} - {{ patient.age }} </h1>
+                <p style="margin:0; color:var(--muted);">رقم الملف: {{ patient.id }}</p>
+            </div> 
+
+        <div class="card">
+            <h2 style="margin-top:0;">التشخيص</h2>
+            <p>(اخر تشخيص) {{patient.diagnosis.first}} </p>
+        </div>
+
+        <!-- ? ----Label for the inside data---- -->
+        <div class="section-header-plain">
+            <h2 style="margin:0;">سجل المواعيد</h2>
+            <!-- ! i passed the patient id from the patient profile page to this page using "context" in the profile view __in patient app -->
+            {% if request.user.is_staff_member %}
+                <a href="{% url 'create-appointment' user_id %}?next={% url 'patient-profile' user_id %}" class="btn" style="background:var(--primary); color:#fff; border-color:var(--primary);">موعد جديد</a>
+            {% endif %}
+        </div>
+        <!-- ------------------------------------- -->
+
+        <div style="display:grid; gap:16px;">
+            {% for appoint in appointments %}
+            <!-- user_id was passed in context of patient profile as a user model instance id -->
+            <a class="card" href="{% url 'appointment-details' appoint.id  user_id %}" style="text-decoration:none; color:inherit; display:block;">
+                <div style="display:flex; justify-content:space-between; align-items:start; gap:16px;">
+                    <div style="flex:1;">
+                        <h3 style="margin:0 0 8px;">موعد  {{ appoint.date|date:"j-n-y" }}</h3>
+                        <p style="margin:4px 0; color:var(--muted);">• الرسوم: {{appoint.cost}} ج.م</p>
+                        <!-- <p style="margin:4px 0 0; color:var(--muted);">ملاحظات: متابعة</p> -->
+                    </div>
+                    <span class="pill success">{{appoint.status}}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

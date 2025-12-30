@@ -1,0 +1,87 @@
+<!-- Reusable Messages Component -->
+<!-- Styles are in static/style/style.css
+    
+    Usage in any template:
+    
+    Then in your Django view, use:
+    from django.contrib import messages
+    messages.success(request, 'Your message here')
+    messages.error(request, 'Error message')
+    messages.warning(request, 'Warning message')
+    messages.info(request, 'Info message')
+-->
+
+<div id="messages-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message-alert message-{{ message.tags }}" 
+                role="alert" 
+                aria-live="polite">
+                
+                <!-- Message icon based on type -->
+                <span class="message-icon">
+                    {% if message.tags == 'success' %}✓
+                    {% elif message.tags == 'error' %}✕
+                    {% elif message.tags == 'warning' %}⚠
+                    {% else %}ℹ
+                    {% endif %}
+                </span>
+                
+                <!-- Message content -->
+                <div style="flex: 1;">
+                    <p style="margin: 0; font-weight: 500; font-size: 14px;">
+                        {{ message }}
+                    </p>
+                </div>
+                
+                <!-- Close button -->
+                <button class="message-close" 
+                        aria-label="Close message">×</button>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<script>
+    /**
+     * Messages auto-close functionality
+     * Automatically dismisses messages after 5 seconds
+     * Users can manually close messages with the × button
+     */
+    (function() {
+        'use strict';
+
+        const AUTO_CLOSE_DELAY = 5000; // 5 seconds
+        const ANIMATION_DURATION = 300; // 0.3 seconds
+
+        // Get all message alerts
+        const messageAlerts = document.querySelectorAll('.message-alert');
+
+        messageAlerts.forEach((messageElement) => {
+            const closeBtn = messageElement.querySelector('.message-close');
+
+            // Function to remove message with animation
+            function removeMessage() {
+                messageElement.classList.add('removing');
+                setTimeout(() => {
+                    messageElement.remove();
+                    // Remove container if empty
+                    const container = document.getElementById('messages-container');
+                    if (container && container.children.length === 0) {
+                        container.style.display = 'none';
+                    }
+                }, ANIMATION_DURATION);
+            }
+
+            // Close button handler
+            if (closeBtn) {
+                closeBtn.addEventListener('click', removeMessage);
+            }
+
+            // Auto-close message (unless it's an error)
+            if (!messageElement.classList.contains('error')) {
+                setTimeout(removeMessage, AUTO_CLOSE_DELAY);
+            }
+        });
+    })();
+</script>

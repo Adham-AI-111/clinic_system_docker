@@ -1,0 +1,27 @@
+<div id="prescription-data" class="content-section">
+    <h2 class="section-title">الروشتة</h2>
+    <div class="content-text">{{ prescription.prescription|linebreaks }}</div>
+</div>
+
+{% if request.user.is_staff_member %}
+<div class="action-buttons">
+    <button class="btn-update"
+        hx-get="{% url 'update-prescription' prescription_id=prescription.id %}"
+        hx-target="#prescription-card-container"
+        hx-swap="innerHTML">
+        <span>تعديل</span>
+    </button>
+
+    <button class="btn-delete"
+        hx-delete="{% url 'delete-prescription' prescription_id=prescription.id %}"
+        hx-target="#prescription-card-container"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        hx-swap="innerHTML"
+        hx-confirm="هل أنت متأكد من حذف هذه الروشتة؟">
+        <span>حذف</span>
+    </button>
+</div>
+{% endif %}
+
+<!-- to swap for add btn after delete -->
+<div id="add-prescription-btn" hx-swap-oob="true" style="display:none;"></div>

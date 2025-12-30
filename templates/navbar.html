@@ -1,0 +1,36 @@
+{% load tz %} 
+<header class="topbar">
+    <div class="topbar__left">
+        <div class="brand">
+            {% if request.user.is_authenticated %}
+            {% if request.tenant.schema_name != 'public' %}
+                عيادة الطبيب {{ request.tenant.user.username }}
+            {% else %}
+                Welcome in public
+            {% endif %}
+        {% else %}
+            Welcome in public
+        {% endif %}</div>
+    </div>
+
+    {% if request.user.is_authenticated and request.user.is_staff_member %}
+    <div class="topbar__center">
+        <form class="search" action="{% url 'patients-dash' %}">
+            <input name="q" value="{{request.GET.q}}" type="search" placeholder="بحث عن مريض..." aria-label="بحث" />
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="topbar__right">
+        <span class="today" aria-label="تاريخ اليوم">{% now "j-n-y" %}</span>
+
+        {% if request.user.is_authenticated %}
+            {% if request.user.is_staff_member %}
+                <a class="brand" href="{% url 'staff-logout' %}" aria-label="تسجيل الخروج">logout</a>
+            {% else %}
+                <a class="brand" href="{% url 'patient-logout' %}" aria-label="تسجيل الخروج">logout</a>
+            {% endif %}
+        {% endif %}
+
+    </div>
+</header>

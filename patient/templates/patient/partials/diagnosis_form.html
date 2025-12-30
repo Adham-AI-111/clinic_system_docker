@@ -1,0 +1,45 @@
+<form class="dynamic-form" 
+    {% if form.instance.pk %}
+    hx-post="{% url 'update-diagnosis' diagnosis_id=form.instance.pk %}"
+    {% else %}
+    hx-post="{{url_path}}"
+    {% endif %}
+    hx-target="#diagnosis-card-container"
+    hx-swap="innerHTML"
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+    hx-on="htmx:afterRequest: this.remove()">
+
+    {% csrf_token %}
+    <div class="form-header">
+        <h3>{% if form.instance.pk %}تعديل التشخيص{% else %}إضافة التشخيص{% endif %}</h3>
+    </div>
+    
+    <div class="form-fields">
+        {% for field in form %}
+        <div class="form-field">
+            <label>{{ field.label }}</label>
+            {{field}}
+            {% if field.errors %}
+            <div class="field-errors">{{field.errors}}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">
+            <span>{% if form.instance.pk %}حفظ التعديلات{% else %}حفظ التشخيص{% endif %}</span>
+        </button>
+        <button type="button" class="btn-secondary" 
+            {% if form.instance.pk %}
+            hx-get="{% url 'view-diagnosis' diagnosis_id=form.instance.pk %}"
+            hx-target="#diagnosis-card-container"
+            hx-swap="innerHTML"
+            {% else %}
+            hx-on="click: this.closest('form').remove(); 
+            document.getElementById('add-diagnosis-btn').style.display='block';"
+            {% endif %}>
+            إلغاء
+        </button>
+    </div>
+</form>

@@ -1,0 +1,13 @@
+<!-- Empty diagnosis card -->
+<div></div>
+
+<!-- Show the add button again (out of band swap) -->
+<div id="add-diagnosis-btn" hx-swap-oob="true" style="display:block;">
+    <button class="btn-add"
+        hx-get="{% url 'add-diagnosis' appoint_id=appointment.id %}" 
+        hx-target="#diagnosis-form"
+        hx-swap="beforeend"
+        hx-on="click: this.parentElement.style.display='none'">
+        <span>+</span> إضافة تشخيص
+    </button>
+</div>

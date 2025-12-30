@@ -1,0 +1,78 @@
+{% extends 'main.html' %}
+{% block title %}نظام العيادة — الرئيسية{% endblock %}
+{% block content %}
+
+
+<div class="layout">
+    {% include 'sidebar.html' %}
+<!-- ------------------------- page content  ------------------------------------- -->
+    <main class="content">
+        <!-- dynamic nummerize numbers 'quick view' -->
+        <section class="grid-stats">
+            <div class="card stat">
+                <div class="label">مواعيد اليوم</div>
+                <div class="value">{{ today_appoints|length }}</div>
+            </div>
+            <div class="card stat">
+                <div class="label">مكتملة</div>
+                <div class="value" style="color:var(--teal)">{{ complated_appoints|length }}</div>
+            </div>
+            <div class="card stat">
+                <div class="label">مؤجلة</div>
+                <div class="value" style="color:var(--warning)">{{ delayed_appoints|length }}</div>
+            </div>
+            <div class="card stat">
+                <div class="label">الإيراد الكلي</div>
+                <div class="value">{{ total_today_revenue.total_cost|default:"--" }} ج.م</div>
+            </div>
+        </section>
+
+
+        <!-- appointments list -->
+        <section class="section" id="delayed-appointments">
+            <div class="section-header-plain">
+                <h2 style="margin:0;">مؤجلة اليوم</h2>
+            </div>
+            {% if delayed_appoints %}
+                {% for appoint in delayed_appoints %}
+                    {% include 'reception/partials/appoint_card.html' %}
+                {% endfor %}
+            {% else %}
+                <div class="card">
+                    <ul style="margin:0; padding:0 16px; list-style:disc;">
+                        <li>لم يتم اضافة عناصر بعد.</li>
+                    </ul>
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="section" id="completed-appointments">
+            <div class="section-header-plain">
+                <h2 style="margin:0;">مكتملة اليوم</h2>
+            </div>
+            {% if complated_appoints %}
+                {% for appoint in complated_appoints %}
+                    {% include 'reception/partials/appoint_card.html' %}
+                {% endfor %}
+            {% else %}
+                <div class="card">
+                    <ul style="margin:0; padding:0 16px; list-style:disc;">
+                        <li>لم يتم اضافة عناصر بعد.</li>
+                    </ul>
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <h2>حجوزات مسبقة لليوم</h2>
+            <div class="card">
+                <ul style="margin:0; padding:0 16px; list-style:disc;">
+                    {% for appoint in prior_appoints %}
+                    <li>{{appoint.patient.user.username}} — {{appoint.patient.age}} — {{appoint.patient.user.phone}}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

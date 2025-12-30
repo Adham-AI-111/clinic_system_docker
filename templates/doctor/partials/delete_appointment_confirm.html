@@ -1,0 +1,27 @@
+<!-- Delete Confirmation Modal -->
+<div class="delete-modal-overlay" id="delete-confirmation-overlay">
+    <div class="delete-modal-content">
+        <h2 class="delete-modal-header">تأكيد الحذف</h2>
+        
+        <p class="delete-modal-body">
+            هل أنت متأكد من رغبتك في حذف هذا الموعد؟
+            <br>
+            <strong>التاريخ:</strong> {{ appointment.date|date:'d-m-Y' }}
+            <br>
+            <strong>المريض:</strong> {{ appointment.patient.user.username }}
+            <br>
+            <span class="delete-warning">هذا الإجراء لا يمكن التراجع عنه</span>
+        </p>
+
+        <div class="delete-modal-actions">
+            <form method="post" action="{% url 'delete-appointment' appointment.id user_id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">حذف الموعد</button>
+            </form>
+            
+            <button type="button" class="btn" onclick="document.getElementById('delete-confirmation-overlay').remove()">
+                إلغاء
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,73 @@
+{% extends 'main.html' %}
+{% block navbar %}
+{# Hide navbar on landing page - this is an entry point before login #}
+{% endblock %}
+{% block content %}
+
+<main class="home-hero-main">
+    <div class="home-hero-shell">
+        <section class="home-hero-intro">
+            <div class="home-hero-kicker">
+                <span class="home-hero-kicker-dot"></span>
+                <span>نظام العيادة المتعدد الفروع</span>
+            </div>
+            <h1 class="home-hero-title">
+                أهلاً بك في بوابة إدارة العيادة
+            </h1>
+            <p class="home-hero-subtitle">
+                مكان واحد لإدارة المواعيد والمرضى وسجلاتهم الطبية بكل سهولة ووضوح، سواء كنت طبيباً أو مريضاً.
+            </p>
+            <div class="home-hero-badges">
+                <span class="home-hero-badge">لوحة تحكم للطبيب والاستقبال</span>
+                <span class="home-hero-badge">بوابة مريض لمتابعة المواعيد</span>
+                <span class="home-hero-badge">أمان وحماية للبيانات</span>
+            </div>
+            <p class="home-hero-faint">
+                اختر نوع الدخول المناسب لك لبدء استخدام النظام.
+            </p>
+        </section>
+
+        <section class="home-hero-card" aria-label="اختيار نوع الدخول">
+            <header class="home-hero-card-header">
+                <h2 class="home-hero-card-title">من أنت؟</h2>
+                <span class="home-hero-card-pill">نقطة الدخول العامة للنظام</span>
+            </header>
+
+            <div class="home-hero-options">
+                <div class="home-hero-option home-hero-option-primary">
+                    <div class="home-hero-option-main">
+                        <div class="home-hero-icon" aria-hidden="true">🩺</div>
+                        <div>
+                            <h3>فريق العيادة (طبيب / استقبال)</h3>
+                            <p>إدارة المواعيد والمرضى وسجل العيادة من لوحة التحكم المخصصة للطاقم الطبي.</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'staff-login' %}" class="home-hero-link">
+                        <span>دخول الطاقم</span>
+                        <span class="home-hero-option-arrow">↗</span>
+                    </a>
+                </div>
+
+                <div class="home-hero-option">
+                    <div class="home-hero-option-main">
+                        <div class="home-hero-icon" aria-hidden="true">👤</div>
+                        <div>
+                            <h3>مريض</h3>
+                            <p>تسجيل الدخول لمتابعة مواعيدك ونتائج الفحوصات وخطة العلاج في عيادتك.</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'patient-login' %}" class="home-hero-link">
+                        <span>دخول المريض</span>
+                        <span class="home-hero-option-arrow">↗</span>
+                    </a>
+                </div>
+            </div>
+
+            <p class="home-hero-footer-note">
+                لا تمتلك حساباً بعد؟ يمكن لفريق الاستقبال إنشاء حساب للمريض من داخل لوحة التحكم.
+            </p>
+        </section>
+    </div>
+</main>
+
+{% endblock %}

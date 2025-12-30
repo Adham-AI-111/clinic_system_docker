@@ -1,0 +1,137 @@
+{% extends 'main.html' %}
+{% block title %}تفاصيل الموعد{% endblock %}
+{% block content %}
+
+<div class="layout">
+    <!-- TODO: display for staff only -->
+    {% include 'sidebar.html' %}
+    <!-- ---------------------------- -->
+
+    <main class="content">
+        <section class="section">
+            <!--? public appointment data -->
+            <div class="card">
+                <h1 style="margin:0 0 8px;">موعد — {{user.username}} </h1>
+                <p style="margin:0; color:var(--muted);">{{appointment.date|date:'d-m-Y'}} • الرسوم: {{appointment.cost}} ج.م</p>
+            </div>
+            <!-- ----------------------- -->
+
+            <!-- ! ====== DIAGNOSIS ======= -->
+            {% if not diagnosis %}
+            <div id="form-section">
+                <!-- ? solve the issue that was happend after cancled the form, that make the add button disappeard by hx-on and some thing in cancel button-->
+                {% if request.user.is_staff_member %}
+                <div id="add-diagnosis-btn" {% if diagnosis %}style="display:none;"{% endif %}>
+                    <button class="btn-add"
+                        hx-get="{% url 'add-diagnosis' appoint_id=appointment.id %}" 
+                        hx-target="#diagnosis-form"
+                        hx-swap="beforeend"
+                        hx-on="click: this.parentElement.style.display='none'">
+                        <span>+</span> إضافة تشخيص
+                    </button>
+                </div>
+                {% endif %}
+                <div id="diagnosis-form"></div>
+            </div>
+            {% endif %}
+
+            <div>
+                <div>
+                    <!--? the diagnosis -->
+                    <div class="card" id="diagnosis-card-container">
+                        {% if diagnosis %}
+                        <!-- Diagnosis will be displayed here -->
+                            {% include 'patient/partials/diagnosis_view.html' %}
+                        {% else %}
+                            لم يضاف تشخيص
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- -------------- -->
+            
+            <!-- !======= PRESCRIPTION ========= -->
+            {% if not prescription %}
+            <div id="form-section">
+                <!-- ? solve the issue that was happend after cancled the form, that make the add button disappeard by hx-on and some thing in cancel button-->
+                {% if request.user.is_staff_member %}
+                <div id="add-prescription-btn" {% if prescription %}style="display:none;"{% endif %}>
+                    <button class="btn-add"
+                        hx-get="{% url 'add-prescription' appoint_id=appointment.id %}" 
+                        hx-target="#prescription-form"
+                        hx-swap="beforeend"
+                        hx-on="click: this.parentElement.style.display='none'">
+                        <span>+</span> إضافة روشتة
+                    </button>
+                </div>
+                {% endif %}
+                <div id="prescription-form"></div>
+            </div>
+            {% endif %}
+
+            <div>
+                <div>
+                    <!--? the prescription -->
+                    <div class="card" id="prescription-card-container">
+                        {% if prescription %}
+                        <!-- prescription will be displayed here -->
+                        {% include 'patient/partials/prescription_view.html' %}
+                        {% else %}
+                            لم يضاف روشتة
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- !======== REQUIREMENTS ======== -->
+            {% if not requires %}
+            <div id="form-section">
+                {% if request.user.is_staff_member %}
+                <div id="add-requires-btn" {% if requires %}style="display:none;"{% endif %}>
+                    <button class="btn-add"
+                        hx-get="{% url 'add-requires' appoint_id=appointment.id %}" 
+                        hx-target="#requires-form"
+                        hx-swap="beforeend"
+                        hx-on="click: this.parentElement.style.display='none'">
+                        <span>+</span> إضافة نصائح
+                    </button>
+                </div>
+                {% endif %}
+                <div id="requires-form"></div>
+            </div>
+            {% endif %}
+
+            <div>
+                <div>
+                    <!--? the requires -->
+                    <div class="card" id="requires-card-container">
+                        {% if requires %}
+                        <!-- Requires will be displayed here -->
+                        {% include 'patient/partials/requires_view.html' %}
+                        {% else %}
+                            لم يضاف متطلبات
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- ------------------ -->
+
+            <div style="display:flex; gap:12px;">
+                <a href="{% url 'patient-profile' user.id %}" class="btn">العودة إلى profile</a>
+                <!-- ! i passed the patient id from the patient profile page to this page using "context" in the profile view __in patient app -->
+                {% if request.user.is_staff_member %}
+                    <a href="{% url 'create-appointment' user.id %}?next={% url 'appointment-details' appointment.id user.id %}" class="btn" style="background:var(--primary); color:#fff; border-color:var(--primary);">إضافة موعد مستقبلي</a>
+                    <a href="{% url 'update-appointment' appointment.id user.id %}" class="btn" style="background:#17a2b8; color:#fff; border-color:#17a2b8;" title="تحديث الموعد">تعديل الموعد</a>
+                    <button type="button" class="btn" style="background:#dc3545; color:#fff; border-color:#dc3545;" 
+                        hx-get="{% url 'delete-appointment' appointment.id user.id %}"
+                        hx-target="#delete-modal"
+                        title="حذف الموعد">حذف الموعد</button>
+                {% endif %}
+            </div>
+            
+            <!-- Modal for delete confirmation -->
+            <div id="delete-modal"></div>
+        </section>
+    </main>
+</div>
+{% endblock %}

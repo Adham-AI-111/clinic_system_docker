@@ -1,0 +1,16 @@
+{% load navigation %}
+<aside class="sidebar">
+    <nav>
+    {% if request.user.is_staff_member %}
+        <a class="navlink {% active_link 'dashboard' %}" href="{% url 'dashboard' %}">الرئيسية</a>
+        <a class="navlink {% active_link 'appointments-dash' %}" href="{% url 'appointments-dash' %}">سجل المواعيد</a>
+        <a class="navlink {% active_link 'patients-dash' %}" href="{% url 'patients-dash' %}">المرضى</a>
+        <a class="navlink" href="#">المالية</a>
+        <a class="navlink {% active_link 'patient-signup' %}" href="{% url 'patient-signup' %}">مريض جديد</a>
+        
+        <!-- will be added to the management page later -->
+         <!-- display for doctors only -->
+        <a class="navlink {% active_link 'reception-signup' %}" href="{% url 'reception-signup' %}">عامل جديد</a>
+    {% endif %}
+    </nav>
+</aside>

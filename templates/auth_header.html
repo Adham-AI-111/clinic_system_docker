@@ -1,0 +1,18 @@
+{# Shared simple header for auth pages (staff & patient login) #}
+<header class="topbar">
+    <div class="topbar__left">
+        <div class="brand">
+            {% if request.tenant and request.tenant.user %}
+                نظام إدارة العيادة — عيادة الدكتور {{ request.tenant.user.username }}
+            {% else %}
+                نظام إدارة العيادة — بوابة الدخول
+            {% endif %}
+        </div>
+    </div>
+    <div class="topbar__center"></div>
+    <div class="topbar__right">
+        <span class="today" aria-label="تاريخ اليوم">{% now "j-n-y" %}</span>
+    </div>
+</header>
+
+

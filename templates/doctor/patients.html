@@ -1,0 +1,319 @@
+{% extends 'main.html' %}
+{% block title %}المرضى{% endblock %}
+{% block content %}
+
+
+<div class="layout">
+    {% include 'sidebar.html' %}
+
+    <main class="content">
+        <section class="section">
+            <h2>المرضى</h2>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px;">
+                {% for patient in patients %}
+                <div class="card" >
+                    <a href="{% url 'patient-profile' user_id=patient.user.id %}" style="text-decoration:none; color:inherit;">
+                        <h3 style="margin:0;">{{ patient.user.username }}</h3>
+                        <p style="margin:6px 0; color:var(--muted);">العمر {{ patient.age }} • الملف: {{patient.id}}</p>
+                        <!-- TODO: add the next apppintment data -->
+                        <span class="pill muted">الموعد التالي: 
+                            {% if patient.next_appoint_date %}
+                                {{ patient.next_appoint_date|date:"Y-m-d" }}
+                            {% else %}
+                                --
+                            {% endif %}
+                        </span>
+                    </a>
+                    <!-- the id passes to create appointment view to determine the patient that will be linked with the appointment -->
+                    <a href="{% url 'create-appointment' patient.user.id %}" class="card-link-btn">+</a>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+</div>
+<!-- Appointment modal (hidden until requested) -->
+<div id="appointment-modal" aria-hidden="true" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); align-items:center; justify-content:center; z-index:1200;">
+    <div role="dialog" aria-modal="true" style="background:var(--bg, #fff); max-width:720px; width:calc(100% - 40px); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.25); padding:18px; position:relative;">
+        <button id="appointment-modal-close" aria-label="Close" style="position:absolute; top:10px; right:12px; border:none; background:none; font-size:20px; cursor:pointer;">×</button>
+        <div id="appointment-modal-body" style="display:block;">
+            <!-- form will be injected here -->
+            <div style="padding:24px; text-align:center; color:var(--muted);">جارٍ التحميل…</div>
+        </div>
+    </div>
+</div>
+
+<script>
+/**
+ * Appointment Modal System
+ * Securely loads and displays the create-appointment form in a modal
+ */
+(function(){
+    'use strict';
+
+    // State management
+    let isLoading = false;
+    const MAX_LOAD_TIME = 10000; // 10 seconds timeout
+    const VALID_URL_PATTERN = /^\/[\w\/-]*\d+\/?$/; // Prevent external URLs
+
+    const modal = document.getElementById('appointment-modal');
+    const body = document.getElementById('appointment-modal-body');
+    const closeBtn = document.getElementById('appointment-modal-close');
+
+    // Validate elements exist
+    if (!modal || !body || !closeBtn) {
+        console.error('Modal elements not found');
+        return;
+    }
+
+    /**
+     * Get CSRF token from Django cookie
+     * @param {string} name - Cookie name
+     * @returns {string|null} - CSRF token or null
+     */
+    function getCookie(name) {
+        if (!document.cookie) return null;
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            const prefix = name + '=';
+            if (cookie.startsWith(prefix)) {
+                try {
+                    return decodeURIComponent(cookie.substring(prefix.length));
+                } catch (e) {
+                    console.error('Cookie decode error:', e);
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Sanitize injected HTML: remove dangerous content
+     * @param {Element} element - DOM element to sanitize
+     */
+    function sanitizeElement(element) {
+        // Remove all script tags and their content
+        const scripts = element.querySelectorAll('script, style[id], link[rel="stylesheet"]');
+        scripts.forEach(el => el.remove());
+
+        // Remove dangerous attributes: on* handlers, javascript: URLs, data: URLs
+        element.querySelectorAll('*').forEach(el => {
+            // Remove event handler attributes
+            Array.from(el.attributes).forEach(attr => {
+                if (attr.name.startsWith('on') || 
+                    attr.value.toLowerCase().includes('javascript:') ||
+                    attr.value.toLowerCase().includes('data:')) {
+                    el.removeAttribute(attr.name);
+                }
+            });
+            
+            // Remove form action if it's external
+            if (el.tagName === 'FORM' && el.action && !isLocalUrl(el.action)) {
+                el.removeAttribute('action');
+            }
+        });
+    }
+
+    /**
+     * Validate URL is local (same-origin)
+     * @param {string} url - URL to validate
+     * @returns {boolean}
+     */
+    function isLocalUrl(url) {
+        try {
+            const urlObj = new URL(url, window.location.origin);
+            return urlObj.origin === window.location.origin;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    /**
+     * Create and display error message
+     * @param {string} message - Error message text
+     */
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = 'padding:24px; text-align:center; color:var(--muted); font-size:14px;';
+        errorDiv.textContent = message || 'حدث خطأ غير متوقع.';
+        body.textContent = '';
+        body.appendChild(errorDiv);
+        isLoading = false;
+    }
+
+    /**
+     * Show modal
+     */
+    function showModal(){
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    /**
+     * Hide modal and clear content
+     */
+    function hideModal(){
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        // Clear content with delay to prevent flicker
+        setTimeout(() => {
+            body.textContent = '';
+            isLoading = false;
+        }, 100);
+    }
+
+    /**
+     * Load and inject form into modal
+     * @param {string} url - URL to fetch form from
+     */
+    function loadFormIntoModal(url) {
+        // Validate URL
+        if (!url || !isLocalUrl(url)) {
+            showError('URL غير صحيحة.');
+            return;
+        }
+
+        if (isLoading) {
+            console.warn('Form already loading');
+            return;
+        }
+
+        isLoading = true;
+        showModal();
+
+        // Get CSRF token
+        const csrftoken = getCookie('csrftoken');
+        const headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'text/html'
+        };
+        if (csrftoken) {
+            headers['X-CSRFToken'] = csrftoken;
+        }
+
+        // Set timeout for fetch
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), MAX_LOAD_TIME);
+
+        fetch(url, {
+            method: 'GET',
+            headers: headers,
+            credentials: 'same-origin',
+            signal: controller.signal
+        })
+            .then(res => {
+                clearTimeout(timeoutId);
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                if (!res.headers.get('content-type')?.includes('text/html')) {
+                    throw new Error('Invalid content type');
+                }
+                return res.text();
+            })
+            .then(html => {
+                // Validate HTML
+                if (!html || html.length === 0) {
+                    throw new Error('Empty response');
+                }
+
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Check for parse errors
+                if (doc.documentElement.tagName === 'parsererror') {
+                    throw new Error('Invalid HTML');
+                }
+
+                // Extract section with form
+                const section = doc.querySelector('section.section');
+                if (!section) {
+                    throw new Error('Form section not found');
+                }
+
+                // Import and sanitize
+                const imported = document.importNode(section, true);
+                sanitizeElement(imported);
+
+                body.textContent = '';
+                body.appendChild(imported);
+
+                // Setup form handling
+                const form = body.querySelector('form');
+                if (form) {
+                    // Ensure form action is correct
+                    form.action = url;
+                    form.method = 'POST';
+                    form.setAttribute('novalidate', 'false'); // Allow HTML5 validation
+
+                    // Hide modal on submit but allow form to post
+                    form.addEventListener('submit', function() {
+                        hideModal();
+                    }, { once: true });
+                }
+
+                // Setup cancel link
+                const cancelLinks = body.querySelectorAll('a');
+                cancelLinks.forEach(a => {
+                    const href = a.getAttribute('href');
+                    const text = a.textContent.trim().toLowerCase();
+                    if (href && text.includes('إلغاء')) {
+                        a.addEventListener('click', function(ev) {
+                            ev.preventDefault();
+                            hideModal();
+                        });
+                    }
+                });
+
+                isLoading = false;
+            })
+            .catch(err => {
+                clearTimeout(timeoutId);
+                console.error('Modal load error:', err);
+                
+                // User-friendly error messages
+                if (err.name === 'AbortError') {
+                    showError('انتهت مهلة التحميل. يرجى المحاولة مجددًا.');
+                } else if (err.message.includes('HTTP')) {
+                    showError('فشل تحميل النموذج. يرجى التحقق من الخادم.');
+                } else {
+                    showError('حدث خطأ أثناء تحميل النموذج.');
+                }
+            });
+    }
+
+    // Event listeners
+    closeBtn.addEventListener('click', hideModal);
+    
+    // Close on overlay click
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            hideModal();
+        }
+    });
+
+    // Prevent multiple modal instances and close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display !== 'none') {
+            hideModal();
+        }
+    });
+
+    // Handle appointment button clicks
+    document.addEventListener('click', function(e) {
+        const el = e.target.closest('.card-link-btn');
+        if (!el) return;
+        
+        e.preventDefault();
+        const url = el.getAttribute('href');
+        
+        if (url) {
+            loadFormIntoModal(url);
+        }
+    });
+
+})();
+</script>
+{% endblock %}

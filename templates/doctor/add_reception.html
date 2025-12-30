@@ -1,0 +1,36 @@
+{% extends 'main.html' %}
+{% block title %}عامل جديد{% endblock %}
+{% block content %}
+
+
+
+<div class="layout">
+    {% include 'sidebar.html' %}
+
+    <main class="content">
+        <section class="section">
+            <h2>إضافة عامل جديد</h2>
+            <form method="post" class="card" style="display:grid; gap:16px; max-width:720px;">
+                <div style="display:grid; gap:12px; grid-template-columns:1fr 1fr;">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div>
+                        <label for="{{field.label}}">{{field.label}}</label>
+                        {{field}}
+                    </div>
+                    {% endfor %}
+                </div>
+                <!-- <div>
+                    <label for="notes">ملاحظات</label>
+                    <input id="notes" type="text" placeholder="ملاحظة عن الحالة أو المطلوب" />
+                </div>  -->
+
+                <div style="display:flex; gap:12px;">
+                    <button type="submit" class="primary">حفظ العامل</button>
+                    <a href="{% url 'dashboard' %}" class="btn">إلغاء</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+{% endblock %}

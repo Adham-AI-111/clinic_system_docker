@@ -1,0 +1,41 @@
+{% extends 'main.html' %}
+{% block title %}موعد جديد{% endblock %}
+{% block content %}
+
+
+<div class="layout">
+    {% include 'sidebar.html' %}
+
+    <main class="content">
+        <section class="section">
+            <h2>إضافة موعد جديد للمستخدم {{user.username}}</h2>
+            <form method="post" class="card" style="display:grid; gap:16px; max-width:720px;">
+
+                {{ form.non_field_errors }}
+                
+                <div style="display:grid; gap:12px; grid-template-columns:1fr 1fr;">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        {% if field.name == 'next_url' %}
+                            {{ field }}
+                        {% else %}
+                            <div>
+                                <label>{{ field.label }}</label>
+                                
+                                {{field}}
+                                {{field.errors}}
+                                
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                <div style="display:flex; gap:12px;">
+                    <button type="submit" class="primary">حفظ الموعد</button>
+                    <a href="{% if next_url %}{{ next_url }}{% else %}{% url 'patient-profile' user.id %}{% endif %}" class="btn">إلغاء</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+{% endblock %}

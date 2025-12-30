@@ -1,0 +1,28 @@
+<div id="requires-data" class="content-section">
+    <h2 class="section-title">النصائح</h2>
+    <div class="content-text">{{ requires.requires|linebreaks }}</div>
+</div>
+
+{% if request.user.is_staff_member %}
+<div class="action-buttons">
+    <button class="btn-update"
+        hx-get="{% url 'update-requires' requires_id=requires.id %}"
+        hx-target="#requires-card-container"
+        hx-swap="innerHTML">
+        <span>تعديل</span>
+    </button>
+
+    <button class="btn-delete"
+        hx-delete="{% url 'delete-requires' requires_id=requires.id %}"
+        hx-target="#requires-card-container"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        hx-swap="innerHTML"
+        hx-confirm="هل أنت متأكد من حذف هذه النصائح؟">
+        <span>حذف</span>
+    </button>
+</div>
+{% endif %}
+
+<!-- to swap for add btn after delete -->
+<div id="add-requires-btn" hx-swap-oob="true" style="display:none;"></div>
+

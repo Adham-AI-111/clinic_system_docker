@@ -1,0 +1,46 @@
+{% extends 'main.html' %}
+{% block title %}staff login{% endblock %}
+
+{% block navbar %}
+    {# Use shared auth header instead of main navbar #}
+    {% include 'auth_header.html' %}
+{% endblock %}
+
+{% block content %}
+
+<div class="auth-wrapper">
+    <div class="card auth-card">
+        <h1 style="margin-top:0;">تسجيل الدخول لفريق العيادة</h1>
+        <p style="margin-bottom: 8px; font-size: 14px; color: var(--muted);">
+            أدخل بيانات حسابك كطبيب أو موظف استقبال للوصول إلى لوحة التحكم الخاصة بالعيادة.
+        </p>
+        <form method="post" style="display:grid; gap:16px;">
+            {% csrf_token %}
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div 
+                    class="alert 
+                        {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" 
+                    role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div>
+                <label for="staff_username">اسم المستخدم</label>
+                <input id="staff_username" type="text" name="username"/>
+            </div>
+            <div>
+                <label for="staff_password">كلمة المرور</label>
+                <input id="staff_password" type="password" placeholder="••••••••" name="password"/>
+            </div>
+            <button type="submit" class="primary">دخول الطاقم</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

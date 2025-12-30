@@ -1,0 +1,15 @@
+<select
+        class="pill {{ appoint.status_class }}"
+        name="status"
+        hx-post="{% url 'update-status' appoint.id %}"
+        hx-trigger="change"
+        hx-target="this"
+        hx-swap="outerHTML"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+    >
+        {% for value, label in appoint.APPOINT_STATUS %}
+            <option value="{{ value }}" {% if appoint.status == value %}selected{% endif %}>
+                {{ label }}
+            </option>
+        {% endfor %}
+    </select>

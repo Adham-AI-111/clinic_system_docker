@@ -1,0 +1,14 @@
+<!-- Empty requires card -->
+<div></div>
+
+<!-- Show the add button again (out of band swap) -->
+<div id="add-requires-btn" hx-swap-oob="true" style="display:block;">
+    <button class="btn-add"
+        hx-get="{% url 'add-requires' appoint_id=appointment.id %}" 
+        hx-target="#requires-form"
+        hx-swap="beforeend"
+        hx-on="click: this.parentElement.style.display='none'">
+        <span>+</span> إضافة نصائح
+    </button>
+</div>
+

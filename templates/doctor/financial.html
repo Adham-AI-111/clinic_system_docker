@@ -1,0 +1,40 @@
+{% extends 'main.html' %}
+{% block title %}المالية{% endblock %}
+{% block content %}
+
+
+<div class="layout">
+    {% if request.user.is_staff_member %}
+    {% include 'sidebar.html' %}
+    {% endif %}
+    
+    <main class="content">
+        <section class="section">
+            <form class="card" style="display:flex; gap:12px; flex-wrap:wrap; align-items:end;">
+                <div><label>من</label><input type="date" /></div>
+                <div><label>إلى</label><input type="date" /></div>
+                <button type="submit" class="pill muted">تصفية</button>
+            </form>
+
+            <!-- quick data view "cards" -->
+            <section class="grid-stats">
+                <div class="card stat"><div class="label">الإيرادات</div><div class="value">‏12,500 ر.س</div></div>
+                <div class="card stat"><div class="label">المصروفات</div><div class="value">‏3,200 ر.س</div></div>
+                <div class="card stat"><div class="label">الصافي</div><div class="value" style="color:var(--teal)">‏9,300 ر.س</div></div>
+                <div class="card stat"><div class="label">عدد المواعيد</div><div class="value">86</div></div>
+            </section>
+
+            <div class="card" style="padding:0;">
+                <table class="table">
+                    <thead><tr><th>البند</th><th>القيمة</th><th>التاريخ</th><th>ملاحظة</th></tr></thead>
+                    <tbody>
+                        <tr><td>إيجار</td><td>1,500 ر.س</td><td>2025-11-01</td><td>شهري</td></tr>
+                        <tr><td>مستلزمات طبية</td><td>900 ر.س</td><td>2025-11-03</td><td>أدوات</td></tr>
+                        <tr><td>فواتير كهرباء</td><td>400 ر.س</td><td>2025-11-04</td><td>شهري</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

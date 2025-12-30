@@ -1,0 +1,21 @@
+<article 
+    id="appoint-{{ appoint.id }}"
+    hx-swap-oob="true"
+    hx-target="#{% if appoint.status == 'completed' %}completed-appointments{% else %}delayed-appointments{% endif %}"
+    hx-swap="beforeend"
+    class="card" style="display:flex; justify-content:space-between; gap:16px; align-items:center;">
+    <div>
+        <h3 style="margin:0;">{{ appoint.patient.user.username }}</h3>
+        <p style="margin:4px 0 0; color:var(--muted);">العمر {{ appoint.patient.age }} • الرسوم {{ appoint.cost }} • الملف {{ appoint.patient.id }}</p>
+        <!-- appointment-details/<int:appoint_id>/<int:user_id> -->
+        <p><strong> الموعد السابق :</strong>
+            {% if appoint.previous_appoint_id %}
+                <a class="quick-link" href="{% url 'appointment-details' appoint.previous_appoint_id appoint.patient.user.id %}">quick view the last appointment</a>
+            {% else %}
+                لا يوجد موعد سابق لهذا الملف
+            {% endif %}
+        </p>    
+    </div>
+    {% include 'reception/partials/appoint_status.html' %}
+    <!-- <span class="pill warning"></span> -->
+</article>

@@ -1,0 +1,77 @@
+{% extends 'main.html' %}
+{% block navbar %}
+{# Hide navbar on landing page - this is an entry point before login #}
+{% endblock %}
+{% block content %}
+
+<main class="home-hero-main">
+    <div class="home-hero-shell">
+        <section class="home-hero-intro">
+            <div class="home-hero-kicker">
+                <span class="home-hero-kicker-dot"></span>
+                <span>مرحباً بك في عيادتك</span>
+            </div>
+            <h1 class="home-hero-title">
+                لوحة الدخول لعيادة الطبيب
+            </h1>
+            <p class="home-hero-subtitle">
+                من هنا يمكنك إدارة مواعيد مرضاك، وسجلاتهم الطبية، واستقبال المرضى، أو الدخول كبوابة مريض لمتابعة حالته.
+            </p>
+            <div class="home-hero-badges">
+                <span class="home-hero-badge">مواعيد اليوم في لمحة واحدة</span>
+                <span class="home-hero-badge">سجل مرضى موحد لكل عيادة</span>
+                <span class="home-hero-badge">تجربة سلسة للفريق والمريض</span>
+            </div>
+            <p class="home-hero-faint">
+                اختر نوع الدخول للمتابعة داخل عيادة
+                {% if request.tenant and request.tenant.user %}
+                    {{ request.tenant.user.username }}
+                {% endif %}.
+            </p>
+        </section>
+
+        <section class="home-hero-card" aria-label="اختيار نوع الدخول داخل العيادة">
+            <header class="home-hero-card-header">
+                <h2 class="home-hero-card-title">من أنت في هذه العيادة؟</h2>
+                <span class="home-hero-card-pill">دخول مباشر على دومين العيادة</span>
+            </header>
+
+            <div class="home-hero-options">
+                <div class="home-hero-option home-hero-option-primary">
+                    <div class="home-hero-option-main">
+                        <div class="home-hero-icon" aria-hidden="true">🩺</div>
+                        <div>
+                            <h3>طبيب أو موظف استقبال</h3>
+                            <p>إدارة اليوم الطبي من لوحة التحكم: المواعيد، المرضى، والإجراءات الطبية.</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'staff-login' %}" class="home-hero-link">
+                        <span>دخول الطاقم</span>
+                        <span class="home-hero-option-arrow">↗</span>
+                    </a>
+                </div>
+
+                <div class="home-hero-option">
+                    <div class="home-hero-option-main">
+                        <div class="home-hero-icon" aria-hidden="true">👤</div>
+                        <div>
+                            <h3>مريض في هذه العيادة</h3>
+                            <p>متابعة مواعيدك السابقة والقادمة وخطة العلاج داخل هذه العيادة فقط.</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'patient-login' %}" class="home-hero-link">
+                        <span>دخول المريض</span>
+                        <span class="home-hero-option-arrow">↗</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="home-hero-cta">
+                <span class="home-hero-cta-dot"></span>
+                <span>يمكنك العودة للبوابة العامة لاختيار عيادة أخرى عبر عنوانها الرئيسي.</span>
+            </div>
+        </section>
+    </div>
+</main>
+
+{% endblock %}

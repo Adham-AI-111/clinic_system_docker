@@ -1,0 +1,13 @@
+<!-- Empty prescription card -->
+<div></div>
+
+<!-- Show the add button again (out of band swap) -->
+<div id="add-prescription-btn" hx-swap-oob="true" style="display:block;">
+    <button class="btn-add"
+        hx-get="{% url 'add-prescription' appoint_id=appointment.id %}" 
+        hx-target="#prescription-form"
+        hx-swap="beforeend"
+        hx-on="click: this.parentElement.style.display='none'">
+        <span>+</span> إضافة روشتة
+    </button>
+</div>
